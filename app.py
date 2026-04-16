@@ -107,28 +107,27 @@ with tabs[0]:
     st.markdown("### Executive summary")
     st.caption("One view of the SOE portfolio's size, performance, leverage and transition exposure in each country.")
 
-    # ---- KPI row per country
-    col_l, col_r = st.columns(2)
-    def kpi_card(col, c):
+    # ---- KPI rows per country (stacked full-width so labels don't truncate)
+    def kpi_card(c):
         a = countries[c]
-        with col:
-            st.markdown(f"#### {c}")
-            k1,k2,k3,k4 = st.columns(4)
-            k1.metric("SOEs", a['n_soes'])
-            k2.metric("Combined revenue", f"${a['agg_revenue_usd']/1000:,.1f}B")
-            k3.metric("Portfolio ROA", f"{a['agg_roa']:.2f}%" if a['agg_roa'] is not None else "—",
-                      help="Asset-weighted: Σ(Net profit) ÷ Σ(Total assets)")
-            k4.metric("Top-3 concentration", f"{a['top3_revenue_share']:.0f}%" if a['top3_revenue_share'] else "—",
-                      help="Share of SOE revenue captured by the three largest")
-            k5,k6,k7,k8 = st.columns(4)
-            k5.metric("Combined assets", f"${a['agg_assets_usd']/1000:,.1f}B")
-            k6.metric("Combined debt", f"${a['agg_debt_usd']/1000:,.1f}B" if a['agg_debt_usd'] else "—")
-            k7.metric("Fiscal-risk SOEs", a['n_fiscal_risk'],
-                      help="Large SOEs (above median revenue) with negative ROA")
-            k8.metric("Scope 1 emissions", f"{a['agg_emissions_t']/1e6:.1f} MtCO₂e")
+        st.markdown(f"#### {c}")
+        k1,k2,k3,k4 = st.columns(4)
+        k1.metric("SOEs", a['n_soes'])
+        k2.metric("Combined revenue", f"${a['agg_revenue_usd']/1000:,.1f}B")
+        k3.metric("Portfolio ROA", f"{a['agg_roa']:.2f}%" if a['agg_roa'] is not None else "—",
+                  help="Asset-weighted: Σ(Net profit) ÷ Σ(Total assets)")
+        k4.metric("Top-3 concentration", f"{a['top3_revenue_share']:.0f}%" if a['top3_revenue_share'] else "—",
+                  help="Share of SOE revenue captured by the three largest")
+        k5,k6,k7,k8 = st.columns(4)
+        k5.metric("Combined assets", f"${a['agg_assets_usd']/1000:,.1f}B")
+        k6.metric("Combined debt", f"${a['agg_debt_usd']/1000:,.1f}B" if a['agg_debt_usd'] else "—")
+        k7.metric("Fiscal-risk SOEs", a['n_fiscal_risk'],
+                  help="Large SOEs (above median revenue) with negative ROA")
+        k8.metric("Scope 1 emissions", f"{a['agg_emissions_t']/1e6:.1f} MtCO₂e")
 
-    kpi_card(col_l, 'Serbia')
-    kpi_card(col_r, 'Poland')
+    kpi_card('Serbia')
+    st.markdown("")
+    kpi_card('Poland')
 
     st.markdown("---")
 
@@ -210,7 +209,7 @@ with tabs[0]:
 # ============================================================
 with tabs[1]:
     st.markdown("### Country benchmark")
-    st.caption("Aggregates are asset- or revenue-weighted (Σ of numerator ÷ Σ of denominator), not medians. This avoids small SOEs pulling the comparison away from what the state actually carries on its books.")
+    st.caption("Aggregates are asset- or revenue-weighted (Σ of numerator ÷ Σ of denominator) (not median).")
 
     rows = []
     for c in ['Serbia','Poland']:
@@ -324,7 +323,7 @@ with tabs[1]:
 # ============================================================
 with tabs[2]:
     st.markdown("### Transition lens")
-    st.caption("Scope 1 emissions and emissions intensity. The policy question is: which SOEs are a *liability* (high-carbon + weak returns → drag on the balance sheet under decarbonisation) and which are an *opportunity* (high-carbon but profitable → investable candidate for green capex).")
+    st.caption("Scope 1 emissions and emissions intensity. The graph answers the following question: which SOEs are a *liability* (high-carbon + weak returns → drag on the balance sheet under decarbonisation) and which are an *opportunity* (high-carbon but profitable → investable candidate for green capex).")
 
     emi_soes = soe_df.dropna(subset=['scope1_tonnes']).copy()
 
@@ -376,7 +375,7 @@ with tabs[2]:
     st.plotly_chart(fig, use_container_width=True)
     definition(
         "X = tCO₂ per USD million of revenue (log). Y = ROA (Net Profit ÷ Assets, Investopedia). "
-        "Bubble size = revenue (not emissions) so scale is on equal visual footing. "
+        "Bubble size = revenue so scale is on equal visual footing. "
         "Top-right of the red vertical = high-carbon SOEs; below ROA=0 they are transition liabilities, "
         "above ROA=2% they are transition opportunities. Labels shown for the top 5 emitters only.")
 
@@ -907,6 +906,31 @@ SOEs and tend to misrepresent portfolio-level exposure.
   some rows.
 - ORLEN 2017–2022 figures come from Q4 report "Selected Data" sections; 2022 uses post-Lotos
   restated numbers, earlier years are pre-merger and not directly comparable in absolute terms.
-
-*Dashboard build: April 2026. Proof of concept — contact for data refresh or scope extension.*
 """)
+
+    st.markdown("#### Options to close the gaps")
+    st.markdown("""
+Concrete ways to widen coverage and raise data quality, in rough order of effort:
+
+- **Company disclosures (primary)** — pull annual reports, sustainability/ESG reports and Scope 1
+  breakdowns directly from SOE investor-relations pages (ORLEN, KGHM, PGE, PZU, PKO, Enea, etc.).
+  Highest authority, usually in English.
+- **National registers and statistical offices** — Serbia APR (Agencija za privredne registre),
+  Poland KRS + GUS, Czech Obchodní rejstřík, Romanian ONRC. Machine-readable filings, gap-filler
+  for unlisted SOEs.
+- **Multilateral and supranational** — WB iSOEF country reports, IMF Article IV staff reports,
+  OECD SOE Scoreboard / OECD PMR, EU Commission country reports and Fiscal Stability Reports.
+  Good for cross-country comparability and policy framing.
+- **Regulatory / sectoral bodies** — national energy regulators (URE Poland, AERS Serbia), Eurostat
+  SBS for sector aggregates, EU ETS registry for verified Scope 1 CO₂.
+- **Commercial databases** — Orbis (Bureau van Dijk), S&P Capital IQ, Refinitiv; complete panel
+  data but paid.
+- **Open-source trackers** — Wikidata for SOE metadata (ownership %, sector codes), Global Energy
+  Monitor for plant-level capacity, Climate TRACE for independent emissions estimates, OpenCorporates
+  for ownership chains.
+- **Internal Bank sources** — colleagues in the country teams (CMU, MTI, EFI), task team leaders
+  on active operations, and PIM/PAG specialists often hold unpublished SOE data.
+- **Wikipedia / press** — useful for reconciling names, scoping mergers/spin-offs, and flagging
+  recent events; not citable as a primary source but a fast starting point.
+""")
+
