@@ -1,0 +1,126 @@
+{
+  "companies": [
+    {
+      "company": "JSW",
+      "country": "Poland",
+      "total_scope1": 133515.1,
+      "domestic_scope1": 133515.1,
+      "foreign_scope1": 0,
+      "by_sector": {
+        "Power": 120763.4,
+        "Upstream O&G": 12751.7
+      },
+      "source_entities": [
+        "Jastrzebska Spólka Weglowa SA"
+      ]
+    },
+    {
+      "company": "PGE Polska Grupa Energetyczna S.A.",
+      "country": "Poland",
+      "total_scope1": 46854800.9,
+      "domestic_scope1": 46854800.9,
+      "foreign_scope1": 0,
+      "by_sector": {
+        "Coal": 7568191.0,
+        "Power": 39286609.9
+      },
+      "source_entities": [
+        "PGE Polska Grupa Energetyczna SA"
+      ]
+    },
+    {
+      "company": "Enea S.A.",
+      "country": "Poland",
+      "total_scope1": 21500843.0,
+      "domestic_scope1": 21500843.0,
+      "foreign_scope1": 0,
+      "by_sector": {
+        "Coal": 2114866.8,
+        "Power": 19385976.1
+      },
+      "source_entities": [
+        "ENEA SA"
+      ]
+    },
+    {
+      "company": "Polskie Linie Lotnicze LOT S.A.",
+      "country": "Poland",
+      "total_scope1": 1216476.1,
+      "domestic_scope1": 1216476.1,
+      "foreign_scope1": 0,
+      "by_sector": {
+        "Aviation": 1216476.1
+      },
+      "source_entities": [
+        "Polskie Linie Lotnicze LOT SA"
+      ]
+    },
+    {
+      "company": "TAURON Polska Energia S.A.",
+      "country": "Poland",
+      "total_scope1": 0,
+      "domestic_scope1": 0,
+      "foreign_scope1": 0,
+      "by_sector": {
+        "Power": 0
+      },
+      "source_entities": [
+        "TAURON Wydobycie SA"
+      ]
+    },
+    {
+      "company": "Air Serbia a.d.",
+      "country": "Serbia",
+      "total_scope1": 312949.8,
+      "domestic_scope1": 312949.8,
+      "foreign_scope1": 0,
+      "by_sector": {
+        "Aviation": 312949.8
+      },
+      "source_entities": [
+        "Air Serbia AD"
+      ]
+    },
+    {
+      "company": "EPS (Consolidated)",
+      "country": "Serbia",
+      "total_scope1": 18691543.1,
+      "domestic_scope1": 18691543.1,
+      "foreign_scope1": 0,
+      "by_sector": {
+        "Coal": 2491134.1,
+        "Power": 16200409.1
+      },
+      "source_entities": [
+        "Elektroprivreda Srbije JP"
+      ]
+    },
+    {
+      "company": "NIS a.d. Novi Sad",
+      "country": "Serbia",
+      "total_scope1": 36498.7,
+      "domestic_scope1": 0,
+      "foreign_scope1": 36498.7,
+      "by_sector": {
+        "Upstream O&G": 36498.7
+      },
+      "source_entities": [
+        "NIS-Naftagas AD"
+      ]
+    }
+  ],
+  "country_totals": {
+    "Poland": {
+      "Power": 101212878,
+      "Coal": 17856218.58,
+      "Aviation": 1589605.639,
+      "Shipping": 55411.114,
+      "Upstream O&G": 1482944.995
+    },
+    "Serbia": {
+      "Power": 17027147.82,
+      "Coal": 2578979.591,
+      "Aviation": 533609.954
+    }
+  }
+}
