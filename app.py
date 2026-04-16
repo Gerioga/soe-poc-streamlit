@@ -253,86 +253,80 @@ with tabs[1]:
     st.markdown("---")
 
     # Quadrant share comparison
-    col_l, col_r = st.columns(2)
-    with col_l:
-        st.markdown("#### Portfolio mix by quadrant")
-        qd = soe_df.dropna(subset=['revenue_usd']).groupby(['country','quadrant'])['revenue_usd'].sum().reset_index()
-        qd['share'] = qd.groupby('country')['revenue_usd'].transform(lambda x: x/x.sum()*100)
-        fig = px.bar(qd, x='country', y='share', color='quadrant',
-                     color_discrete_map=QUAD_COLOR,
-                     labels={'share':'Share of SOE revenue (%)','country':''},
-                     text=qd['share'].round(0).astype(str)+'%')
-        fig.update_traces(textposition='inside')
-        fig.update_layout(height=420, barmode='stack')
-        st.plotly_chart(fig, use_container_width=True)
-        definition(
-            "Bars show the share of each country's SOE revenue sitting in each quadrant of the "
-            "Size × ROA map. A large red slice = fiscal-risk weight; a large green slice = "
-            "portfolio dominated by profitable large SOEs.")
+    st.markdown("#### Portfolio mix by quadrant")
+    qd = soe_df.dropna(subset=['revenue_usd']).groupby(['country','quadrant'])['revenue_usd'].sum().reset_index()
+    qd['share'] = qd.groupby('country')['revenue_usd'].transform(lambda x: x/x.sum()*100)
+    fig = px.bar(qd, x='country', y='share', color='quadrant',
+                 color_discrete_map=QUAD_COLOR,
+                 labels={'share':'Share of SOE revenue (%)','country':''},
+                 text=qd['share'].round(0).astype(str)+'%')
+    fig.update_traces(textposition='inside')
+    fig.update_layout(height=480, barmode='stack')
+    st.plotly_chart(fig, use_container_width=True)
+    definition(
+        "Bars show the share of each country's SOE revenue sitting in each quadrant of the "
+        "Size × ROA map. A large red slice = fiscal-risk weight; a large green slice = "
+        "portfolio dominated by profitable large SOEs.")
 
-    with col_r:
-        st.markdown("#### Transition exposure")
-        td = soe_df.groupby(['country','transition_category']).size().reset_index(name='n')
-        fig = px.bar(td, x='country', y='n', color='transition_category',
-                     color_discrete_map=TRANS_COLOR,
-                     labels={'n':'Number of SOEs','country':''})
-        fig.update_layout(height=420, barmode='stack')
-        st.plotly_chart(fig, use_container_width=True)
-        definition(
-            "Count of SOEs per transition category. <b>Liability</b> = high-carbon AND loss-making "
-            "(decarbonise-or-restructure candidate); <b>Opportunity</b> = high-carbon AND profitable "
-            "(investable for green capex since cash flow supports debt service).")
+    st.markdown("#### Transition exposure")
+    td = soe_df.groupby(['country','transition_category']).size().reset_index(name='n')
+    fig = px.bar(td, x='country', y='n', color='transition_category',
+                 color_discrete_map=TRANS_COLOR,
+                 labels={'n':'Number of SOEs','country':''})
+    fig.update_layout(height=480, barmode='stack')
+    st.plotly_chart(fig, use_container_width=True)
+    definition(
+        "Count of SOEs per transition category. <b>Liability</b> = high-carbon AND loss-making "
+        "(decarbonise-or-restructure candidate); <b>Opportunity</b> = high-carbon AND profitable "
+        "(investable for green capex since cash flow supports debt service).")
 
     st.markdown("#### Concentration")
     st.caption("Share of SOE revenue captured by the largest SOEs. High concentration means fiscal risk is actually a bet on one or two firms.")
 
-    col_a, col_b = st.columns(2)
-    with col_a:
-        concrows = []
-        for c in COUNTRIES:
-            recs = soe_df[soe_df['country']==c].dropna(subset=['revenue_usd']).sort_values('revenue_usd', ascending=False)
-            total = recs['revenue_usd'].sum()
-            for n in [1,2,5]:
-                sh = recs.head(n)['revenue_usd'].sum()/total*100 if total else None
-                concrows.append({'Country': c, 'Top N': f'Top {n}', 'Share of portfolio revenue (%)': round(sh,1) if sh else None})
-        conc = pd.DataFrame(concrows)
-        fig = px.bar(conc, x='Top N', y='Share of portfolio revenue (%)', color='Country',
-                     color_discrete_map=COUNTRY_COLOR, barmode='group',
-                     text='Share of portfolio revenue (%)')
-        fig.update_traces(textposition='outside')
-        fig.update_layout(height=380, yaxis_range=[0, 105])
-        st.plotly_chart(fig, use_container_width=True)
-        definition(
-            "Share of SOE revenue in the largest 1, 2 and 5 firms. If Top 1 is already > 50%, "
-            "fiscal risk is effectively single-name risk — one large SOE shock moves the whole portfolio.")
+    concrows = []
+    for c in COUNTRIES:
+        recs = soe_df[soe_df['country']==c].dropna(subset=['revenue_usd']).sort_values('revenue_usd', ascending=False)
+        total = recs['revenue_usd'].sum()
+        for n in [1,2,5]:
+            sh = recs.head(n)['revenue_usd'].sum()/total*100 if total else None
+            concrows.append({'Country': c, 'Top N': f'Top {n}', 'Share of portfolio revenue (%)': round(sh,1) if sh else None})
+    conc = pd.DataFrame(concrows)
+    fig = px.bar(conc, x='Top N', y='Share of portfolio revenue (%)', color='Country',
+                 color_discrete_map=COUNTRY_COLOR, barmode='group',
+                 text='Share of portfolio revenue (%)')
+    fig.update_traces(textposition='outside')
+    fig.update_layout(height=460, yaxis_range=[0, 105])
+    st.plotly_chart(fig, use_container_width=True)
+    definition(
+        "Share of SOE revenue in the largest 1, 2 and 5 firms. If Top 1 is already > 50%, "
+        "fiscal risk is effectively single-name risk — one large SOE shock moves the whole portfolio.")
 
-    with col_b:
-        # Lorenz-style cumulative concentration curve
-        fig = go.Figure()
-        for c in COUNTRIES:
-            col = COUNTRY_COLOR[c]
-            recs = soe_df[soe_df['country']==c].dropna(subset=['revenue_usd']).sort_values('revenue_usd', ascending=False)
-            total = recs['revenue_usd'].sum()
-            if total == 0 or len(recs) == 0: continue
-            cum = (recs['revenue_usd'].cumsum() / total * 100).tolist()
-            xs = [0] + [(i+1)/len(recs)*100 for i in range(len(recs))]
-            ys = [0] + cum
-            fig.add_trace(go.Scatter(x=xs, y=ys, mode='lines+markers', name=c,
-                                     line=dict(color=col, width=2.5)))
-        fig.add_trace(go.Scatter(x=[0,100], y=[0,100], mode='lines',
-                                 line=dict(color='#bbbbbb', dash='dash', width=1),
-                                 name='Perfectly even', hoverinfo='skip'))
-        fig.update_layout(
-            height=380,
-            xaxis_title='Cumulative share of SOEs (ranked by revenue, %)',
-            yaxis_title='Cumulative share of portfolio revenue (%)',
-            xaxis_range=[0,100], yaxis_range=[0,105],
-            legend=dict(orientation='h', yanchor='bottom', y=-0.25))
-        st.plotly_chart(fig, use_container_width=True)
-        definition(
-            "Lorenz-style curve: each point answers 'the top X% of SOEs earn Y% of portfolio revenue'. "
-            "The dashed 45° line is a perfectly even portfolio. The more the curve bows toward the top-left, "
-            "the more concentrated the portfolio is. (Investopedia: Lorenz curve.)")
+    # Lorenz-style cumulative concentration curve
+    fig = go.Figure()
+    for c in COUNTRIES:
+        col = COUNTRY_COLOR[c]
+        recs = soe_df[soe_df['country']==c].dropna(subset=['revenue_usd']).sort_values('revenue_usd', ascending=False)
+        total = recs['revenue_usd'].sum()
+        if total == 0 or len(recs) == 0: continue
+        cum = (recs['revenue_usd'].cumsum() / total * 100).tolist()
+        xs = [0] + [(i+1)/len(recs)*100 for i in range(len(recs))]
+        ys = [0] + cum
+        fig.add_trace(go.Scatter(x=xs, y=ys, mode='lines+markers', name=c,
+                                 line=dict(color=col, width=2.5)))
+    fig.add_trace(go.Scatter(x=[0,100], y=[0,100], mode='lines',
+                             line=dict(color='#bbbbbb', dash='dash', width=1),
+                             name='Perfectly even', hoverinfo='skip'))
+    fig.update_layout(
+        height=460,
+        xaxis_title='Cumulative share of SOEs (ranked by revenue, %)',
+        yaxis_title='Cumulative share of portfolio revenue (%)',
+        xaxis_range=[0,100], yaxis_range=[0,105],
+        legend=dict(orientation='h', yanchor='bottom', y=-0.25))
+    st.plotly_chart(fig, use_container_width=True)
+    definition(
+        "Lorenz-style curve: each point answers 'the top X% of SOEs earn Y% of portfolio revenue'. "
+        "The dashed 45° line is a perfectly even portfolio. The more the curve bows toward the top-left, "
+        "the more concentrated the portfolio is. (Investopedia: Lorenz curve.)")
 
 # ============================================================
 # TAB 3 — TRANSITION
@@ -579,54 +573,52 @@ with tabs[4]:
     size_max = 40 if size_toggle else 10
 
     st.markdown("#### Fiscal weight & leverage")
-    col_l, col_r = st.columns(2)
-    with col_l:
-        st.markdown("**Revenue / GDP vs Debt / Equity**")
-        dd = latest_rev.dropna(subset=['debt_to_equity','revenue_pct_gdp'])
-        if len(dd):
-            fig = px.scatter(dd, x='debt_to_equity', y='revenue_pct_gdp', color='country',
-                             color_discrete_map=COUNTRY_COLOR, hover_name='company', text='company',
-                             size=size_arg, size_max=size_max)
-            fig.update_traces(textposition='top center', textfont_size=8)
-            fig.add_vline(x=100, line_dash='dot', line_color='#888', opacity=0.4,
-                          annotation_text='D/E = 100%')
-            fig.add_hline(y=5, line_dash='dash', line_color='#d97706', opacity=0.6,
-                          annotation_text='5% GDP — fiscal relevance threshold',
-                          annotation_position='top right')
-            fig.update_layout(height=420)
-            st.plotly_chart(fig, use_container_width=True)
-            definition(
-                "X = Debt / Equity (Investopedia: higher = more leveraged, 100% means debt equals equity). "
-                "Y = SOE revenue as % of GDP (Investopedia: fiscal weight). The orange dashed line at 5% is a "
-                "rule-of-thumb threshold above which a single SOE's turnover is material to national fiscal stability.")
-    with col_r:
-        st.markdown("**Assets / GDP vs ROA**")
-        dd = latest_rev.dropna(subset=['assets_pct_gdp','roa'])
-        if len(dd):
-            fig = px.scatter(dd, x='assets_pct_gdp', y='roa', color='country',
-                             color_discrete_map=COUNTRY_COLOR, hover_name='company', text='company',
-                             size=size_arg, size_max=size_max)
-            fig.update_traces(textposition='top center', textfont_size=8)
-            fig.add_hline(y=0, line_dash='dot', line_color='#888', opacity=0.4,
-                          annotation_text='ROA = 0')
-            fig.add_vline(x=5, line_dash='dash', line_color='#d97706', opacity=0.6,
-                          annotation_text='5% GDP — fiscal relevance threshold',
-                          annotation_position='top right')
-            # Annotate EPS explicitly if in the frame
-            eps_row = dd[dd['company'].str.startswith('EPS')]
-            if len(eps_row):
-                r0 = eps_row.iloc[0]
-                fig.add_annotation(
-                    x=r0['assets_pct_gdp'], y=r0['roa'],
-                    text='EPS — Serbia\'s largest SOE', showarrow=True,
-                    arrowhead=2, ax=40, ay=-30,
-                    font=dict(color='#c8102e', size=11))
-            fig.update_layout(height=420)
-            st.plotly_chart(fig, use_container_width=True)
-            definition(
-                "X = total assets as % of national GDP (fiscal weight). Y = ROA (Net Profit ÷ Assets). "
-                "Above the orange threshold, a single SOE's balance sheet is large enough to matter for the sovereign. "
-                "Points below ROA = 0 on the right-hand side are the priority watchlist: big AND loss-making.")
+    st.markdown("**Revenue / GDP vs Debt / Equity**")
+    dd = latest_rev.dropna(subset=['debt_to_equity','revenue_pct_gdp'])
+    if len(dd):
+        fig = px.scatter(dd, x='debt_to_equity', y='revenue_pct_gdp', color='country',
+                         color_discrete_map=COUNTRY_COLOR, hover_name='company', text='company',
+                         size=size_arg, size_max=size_max)
+        fig.update_traces(textposition='top center', textfont_size=8)
+        fig.add_vline(x=100, line_dash='dot', line_color='#888', opacity=0.4,
+                      annotation_text='D/E = 100%')
+        fig.add_hline(y=5, line_dash='dash', line_color='#d97706', opacity=0.6,
+                      annotation_text='5% GDP — fiscal relevance threshold',
+                      annotation_position='top right')
+        fig.update_layout(height=520)
+        st.plotly_chart(fig, use_container_width=True)
+        definition(
+            "X = Debt / Equity (Investopedia: higher = more leveraged, 100% means debt equals equity). "
+            "Y = SOE revenue as % of GDP (Investopedia: fiscal weight). The orange dashed line at 5% is a "
+            "rule-of-thumb threshold above which a single SOE's turnover is material to national fiscal stability.")
+
+    st.markdown("**Assets / GDP vs ROA**")
+    dd = latest_rev.dropna(subset=['assets_pct_gdp','roa'])
+    if len(dd):
+        fig = px.scatter(dd, x='assets_pct_gdp', y='roa', color='country',
+                         color_discrete_map=COUNTRY_COLOR, hover_name='company', text='company',
+                         size=size_arg, size_max=size_max)
+        fig.update_traces(textposition='top center', textfont_size=8)
+        fig.add_hline(y=0, line_dash='dot', line_color='#888', opacity=0.4,
+                      annotation_text='ROA = 0')
+        fig.add_vline(x=5, line_dash='dash', line_color='#d97706', opacity=0.6,
+                      annotation_text='5% GDP — fiscal relevance threshold',
+                      annotation_position='top right')
+        # Annotate EPS explicitly if in the frame
+        eps_row = dd[dd['company'].str.startswith('EPS')]
+        if len(eps_row):
+            r0 = eps_row.iloc[0]
+            fig.add_annotation(
+                x=r0['assets_pct_gdp'], y=r0['roa'],
+                text='EPS — Serbia\'s largest SOE', showarrow=True,
+                arrowhead=2, ax=40, ay=-30,
+                font=dict(color='#c8102e', size=11))
+        fig.update_layout(height=520)
+        st.plotly_chart(fig, use_container_width=True)
+        definition(
+            "X = total assets as % of national GDP (fiscal weight). Y = ROA (Net Profit ÷ Assets). "
+            "Above the orange threshold, a single SOE's balance sheet is large enough to matter for the sovereign. "
+            "Points below ROA = 0 on the right-hand side are the priority watchlist: big AND loss-making.")
 
     st.markdown("#### Operating efficiency")
     # DuPont decomposition callout: which low-ROA SOEs have low turnover vs low margin
@@ -648,43 +640,41 @@ with tabs[4]:
     if callout:
         st.info("**Why ROA is low — DuPont decomposition of ROA < 2% SOEs:** \n\n" + "\n\n".join(f"- {c}" for c in callout))
 
-    col_l, col_r = st.columns(2)
-    with col_l:
-        st.markdown("**DuPont: Asset turnover vs ROA**")
-        dd = latest_rev.dropna(subset=['asset_turnover','roa'])
-        if len(dd):
-            fig = px.scatter(dd, x='asset_turnover', y='roa', color='country',
-                             color_discrete_map=COUNTRY_COLOR, hover_name='company', text='company',
-                             size=size_arg, size_max=size_max)
-            for margin in [0.05, 0.10, 0.20]:
-                fig.add_scatter(x=[0, 2], y=[0, 2*margin*100], mode='lines',
-                                line=dict(color='lightgray',dash='dot',width=1),
-                                showlegend=False, hoverinfo='skip',
-                                name=f'{int(margin*100)}% margin')
-            fig.update_traces(textposition='top center', textfont_size=8,
-                              selector=dict(mode='markers+text'))
-            fig.update_layout(height=420)
-            st.plotly_chart(fig, use_container_width=True)
-            definition(
-                "DuPont identity (Investopedia): ROA = Net Margin × Asset Turnover. "
-                "X = Revenue ÷ Assets; Y = ROA. The dotted rays are constant-margin lines (5%, 10%, 20%). "
-                "A point with high turnover but low ROA has a margin problem; low turnover + low ROA = idle assets.")
-    with col_r:
-        st.markdown("**EBITDA margin vs Revenue scale (log)**")
-        dd = latest_rev.dropna(subset=['ebitda_margin','revenue_usd'])
-        if len(dd):
-            fig = px.scatter(dd, x='revenue_usd', y='ebitda_margin', color='country',
-                             color_discrete_map=COUNTRY_COLOR, log_x=True,
-                             hover_name='company', text='company',
-                             size=size_arg, size_max=size_max)
-            fig.update_traces(textposition='top center', textfont_size=8)
-            fig.add_hline(y=0, line_dash='dot', line_color='#888')
-            fig.update_layout(height=420)
-            st.plotly_chart(fig, use_container_width=True)
-            definition(
-                "X = Revenue (log); Y = EBITDA Margin = EBITDA ÷ Revenue (Investopedia: cash profitability "
-                "before capex and financing). Below 0 = operating losses. Look for scale-without-margin "
-                "(large revenue, flat/negative margin) as a warning.")
+    st.markdown("**DuPont: Asset turnover vs ROA**")
+    dd = latest_rev.dropna(subset=['asset_turnover','roa'])
+    if len(dd):
+        fig = px.scatter(dd, x='asset_turnover', y='roa', color='country',
+                         color_discrete_map=COUNTRY_COLOR, hover_name='company', text='company',
+                         size=size_arg, size_max=size_max)
+        for margin in [0.05, 0.10, 0.20]:
+            fig.add_scatter(x=[0, 2], y=[0, 2*margin*100], mode='lines',
+                            line=dict(color='lightgray',dash='dot',width=1),
+                            showlegend=False, hoverinfo='skip',
+                            name=f'{int(margin*100)}% margin')
+        fig.update_traces(textposition='top center', textfont_size=8,
+                          selector=dict(mode='markers+text'))
+        fig.update_layout(height=520)
+        st.plotly_chart(fig, use_container_width=True)
+        definition(
+            "DuPont identity (Investopedia): ROA = Net Margin × Asset Turnover. "
+            "X = Revenue ÷ Assets; Y = ROA. The dotted rays are constant-margin lines (5%, 10%, 20%). "
+            "A point with high turnover but low ROA has a margin problem; low turnover + low ROA = idle assets.")
+
+    st.markdown("**EBITDA margin vs Revenue scale (log)**")
+    dd = latest_rev.dropna(subset=['ebitda_margin','revenue_usd'])
+    if len(dd):
+        fig = px.scatter(dd, x='revenue_usd', y='ebitda_margin', color='country',
+                         color_discrete_map=COUNTRY_COLOR, log_x=True,
+                         hover_name='company', text='company',
+                         size=size_arg, size_max=size_max)
+        fig.update_traces(textposition='top center', textfont_size=8)
+        fig.add_hline(y=0, line_dash='dot', line_color='#888')
+        fig.update_layout(height=520)
+        st.plotly_chart(fig, use_container_width=True)
+        definition(
+            "X = Revenue (log); Y = EBITDA Margin = EBITDA ÷ Revenue (Investopedia: cash profitability "
+            "before capex and financing). Below 0 = operating losses. Look for scale-without-margin "
+            "(large revenue, flat/negative margin) as a warning.")
 
     st.markdown("#### Capital structure")
     # Flag over-leveraged and weak-ROE rows
@@ -706,43 +696,41 @@ with tabs[4]:
         names = ", ".join(flagged.sort_values(['flag','debt_to_equity'], ascending=[True, False])['company'].tolist())
         st.warning(f"**Flagged SOEs (D/E > 2 or ROE < 0):** {names}")
 
-    col_l, col_r = st.columns(2)
-    with col_l:
-        st.markdown("**ROE vs Debt / Equity**")
-        dd = cap_d.copy()
-        if len(dd):
-            fig = px.scatter(dd, x='debt_to_equity', y='roe', color='flag',
-                             color_discrete_map=CAP_COLOR,
-                             hover_name='company', text='company',
-                             size=size_arg, size_max=size_max)
-            fig.update_traces(textposition='top center', textfont_size=8)
-            fig.add_hline(y=0, line_dash='dot', line_color='#888')
-            fig.add_vline(x=200, line_dash='dash', line_color='#d97706', opacity=0.6,
-                          annotation_text='D/E = 200% (over-leveraged)')
-            fig.update_layout(height=420, legend_title_text='Flag')
-            st.plotly_chart(fig, use_container_width=True)
-            definition(
-                "X = Debt / Equity %; Y = ROE = Net Profit ÷ Equity (Investopedia: return on state capital). "
-                "The orange dashed vertical at 200% is a conventional over-leverage threshold. "
-                "Points below ROE = 0 on the right of that line are the worst: levered and losing money.")
-    with col_r:
-        st.markdown("**Net profit vs Equity** (slope = ROE)")
-        np_log = st.toggle("Log X (equity)", value=False, key='np_eq_log',
-                           help="Equity varies from a few hundred mn to $20B+. Log compresses the large end.")
-        dd = latest_rev.dropna(subset=['equity_usd','net_profit_usd'])
-        if np_log:
-            dd = dd[dd['equity_usd'] > 0]
-        if len(dd):
-            fig = px.scatter(dd, x='equity_usd', y='net_profit_usd', color='country',
-                             color_discrete_map=COUNTRY_COLOR, hover_name='company', text='company',
-                             size=size_arg, size_max=size_max, log_x=np_log)
-            fig.update_traces(textposition='top center', textfont_size=8)
-            fig.add_hline(y=0, line_dash='dot', line_color='#888')
-            fig.update_layout(height=420)
-            st.plotly_chart(fig, use_container_width=True)
-            definition(
-                "X = Equity (USD mn); Y = Net Profit (USD mn). "
-                "The slope of a line from origin through a point = that SOE's ROE.")
+    st.markdown("**ROE vs Debt / Equity**")
+    dd = cap_d.copy()
+    if len(dd):
+        fig = px.scatter(dd, x='debt_to_equity', y='roe', color='flag',
+                         color_discrete_map=CAP_COLOR,
+                         hover_name='company', text='company',
+                         size=size_arg, size_max=size_max)
+        fig.update_traces(textposition='top center', textfont_size=8)
+        fig.add_hline(y=0, line_dash='dot', line_color='#888')
+        fig.add_vline(x=200, line_dash='dash', line_color='#d97706', opacity=0.6,
+                      annotation_text='D/E = 200% (over-leveraged)')
+        fig.update_layout(height=520, legend_title_text='Flag')
+        st.plotly_chart(fig, use_container_width=True)
+        definition(
+            "X = Debt / Equity %; Y = ROE = Net Profit ÷ Equity (Investopedia: return on state capital). "
+            "The orange dashed vertical at 200% is a conventional over-leverage threshold. "
+            "Points below ROE = 0 on the right of that line are the worst: levered and losing money.")
+
+    st.markdown("**Net profit vs Equity** (slope = ROE)")
+    np_log = st.toggle("Log X (equity)", value=False, key='np_eq_log',
+                       help="Equity varies from a few hundred mn to $20B+. Log compresses the large end.")
+    dd = latest_rev.dropna(subset=['equity_usd','net_profit_usd'])
+    if np_log:
+        dd = dd[dd['equity_usd'] > 0]
+    if len(dd):
+        fig = px.scatter(dd, x='equity_usd', y='net_profit_usd', color='country',
+                         color_discrete_map=COUNTRY_COLOR, hover_name='company', text='company',
+                         size=size_arg, size_max=size_max, log_x=np_log)
+        fig.update_traces(textposition='top center', textfont_size=8)
+        fig.add_hline(y=0, line_dash='dot', line_color='#888')
+        fig.update_layout(height=520)
+        st.plotly_chart(fig, use_container_width=True)
+        definition(
+            "X = Equity (USD mn); Y = Net Profit (USD mn). "
+            "The slope of a line from origin through a point = that SOE's ROE.")
 
 # ============================================================
 # TAB 6 — DATA TABLE
