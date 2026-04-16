@@ -1,5 +1,5 @@
 """
-SOE Proof of Concept Dashboard — Serbia & Poland
+SOE Proof of Concept Dashboard — Serbia, Poland, Romania, Montenegro
 Fiscal-risk oriented redesign.
 """
 import streamlit as st
@@ -8,7 +8,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import json, os
 
-st.set_page_config(page_title="SOE Fiscal Risk — Serbia & Poland", layout="wide", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="SOE Fiscal Risk — 4-country POC", layout="wide", initial_sidebar_state="collapsed")
 
 # ================ AUTH ================
 PASSWORD = "Arlington"
@@ -16,7 +16,7 @@ if 'auth' not in st.session_state:
     st.session_state.auth = False
 
 if not st.session_state.auth:
-    st.markdown("## SOE Fiscal Risk — Serbia & Poland")
+    st.markdown("## SOE Fiscal Risk — Serbia, Poland, Romania, Montenegro")
     pw = st.text_input("Password", type="password")
     if st.button("Enter"):
         if pw == PASSWORD:
@@ -52,7 +52,10 @@ soe_df = pd.DataFrame(an['soes'])
 
 SRB_COLOR = '#c8102e'
 POL_COLOR = '#005288'
-COUNTRY_COLOR = {'Serbia': SRB_COLOR, 'Poland': POL_COLOR}
+ROU_COLOR = '#ffd200'
+MNE_COLOR = '#7b3294'
+COUNTRY_COLOR = {'Serbia': SRB_COLOR, 'Poland': POL_COLOR, 'Romania': ROU_COLOR, 'Montenegro': MNE_COLOR}
+COUNTRIES = ['Serbia', 'Poland', 'Romania', 'Montenegro']
 QUAD_COLOR = {
     'Fiscal risk':          '#d62728',
     'Strategic asset':      '#2ca02c',
@@ -92,7 +95,7 @@ div[data-testid="stMetricValue"] {font-size:22px !important;}
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<p class="big-title">SOE Fiscal Risk Lens — Serbia & Poland</p>', unsafe_allow_html=True)
+st.markdown('<p class="big-title">SOE Fiscal Risk Lens — Serbia · Poland · Romania · Montenegro</p>', unsafe_allow_html=True)
 st.markdown('<p class="subtitle">Where state-owned enterprises sit on the fiscal-risk and transition-risk map. Proof of concept.</p>', unsafe_allow_html=True)
 
 # ================ TABS ================
@@ -123,11 +126,13 @@ with tabs[0]:
         k6.metric("Combined debt", f"${a['agg_debt_usd']/1000:,.1f}B" if a['agg_debt_usd'] else "—")
         k7.metric("Fiscal-risk SOEs", a['n_fiscal_risk'],
                   help="Large SOEs (above median revenue) with negative ROA")
-        k8.metric("Scope 1 emissions", f"{a['agg_emissions_t']/1e6:.1f} MtCO₂e")
+        emi_t = a.get('agg_emissions_t') or 0
+        k8.metric("Scope 1 emissions", f"{emi_t/1e6:.1f} MtCO₂e" if emi_t else "—",
+                  help="Scope 1 matched only for Serbia & Poland in this POC")
 
-    kpi_card('Serbia')
-    st.markdown("")
-    kpi_card('Poland')
+    for c in COUNTRIES:
+        kpi_card(c)
+        st.markdown("")
 
     st.markdown("---")
 
@@ -194,14 +199,12 @@ with tabs[0]:
         "and Emissions intensity (20%). Trend arrows come from a 3-year OLS slope on ROA: "
         "🔻 deteriorating, 🔺 improving, ➡️ stable. Higher score = more supervisory attention warranted.")
 
-    fiscal_risks_srb = countries['Serbia']['fiscal_risk_companies']
-    fiscal_risks_pol = countries['Poland']['fiscal_risk_companies']
-    if fiscal_risks_srb or fiscal_risks_pol:
-        msg = []
-        if fiscal_risks_pol:
-            msg.append(f"**Poland — fiscal-risk SOEs**: " + ", ".join(fiscal_risks_pol))
-        if fiscal_risks_srb:
-            msg.append(f"**Serbia — fiscal-risk SOEs**: " + ", ".join(fiscal_risks_srb))
+    msg = []
+    for c in COUNTRIES:
+        lst = countries[c]['fiscal_risk_companies']
+        if lst:
+            msg.append(f"**{c} — fiscal-risk SOEs**: " + ", ".join(lst))
+    if msg:
         st.warning(" &nbsp; · &nbsp; ".join(msg))
 
 # ============================================================
@@ -212,19 +215,19 @@ with tabs[1]:
     st.caption("Aggregates are asset- or revenue-weighted (Σ of numerator ÷ Σ of denominator) (not median).")
 
     rows = []
-    for c in ['Serbia','Poland']:
+    for c in COUNTRIES:
         a = countries[c]
         rows.append({
             'Country': c,
             'N SOEs': a['n_soes'],
             'Combined Revenue (USDbn)': round(a['agg_revenue_usd']/1000, 2),
-            'Combined Assets (USDbn)':  round(a['agg_assets_usd']/1000, 2),
-            'Combined Debt (USDbn)':    round(a['agg_debt_usd']/1000, 2),
+            'Combined Assets (USDbn)':  round(a['agg_assets_usd']/1000, 2) if a['agg_assets_usd'] else None,
+            'Combined Debt (USDbn)':    round(a['agg_debt_usd']/1000, 2) if a['agg_debt_usd'] else None,
             'Portfolio ROA (%)': a['agg_roa'],
             'Portfolio Debt/Equity (×)': a['agg_leverage'],
             'Carbon intensity (tCO₂/USDmn rev)': a['agg_emissions_intensity'],
             'Top-3 revenue share (%)': a['top3_revenue_share'],
-            'Scope 1 (Mt)': round(a['agg_emissions_t']/1e6, 2),
+            'Scope 1 (Mt)': round(a['agg_emissions_t']/1e6, 2) if a.get('agg_emissions_t') else None,
             'Fiscal-risk SOEs (count)': a['n_fiscal_risk'],
         })
     bench = pd.DataFrame(rows).set_index('Country').T
@@ -274,7 +277,7 @@ with tabs[1]:
     col_a, col_b = st.columns(2)
     with col_a:
         concrows = []
-        for c in ['Serbia','Poland']:
+        for c in COUNTRIES:
             recs = soe_df[soe_df['country']==c].dropna(subset=['revenue_usd']).sort_values('revenue_usd', ascending=False)
             total = recs['revenue_usd'].sum()
             for n in [1,2,5]:
@@ -294,10 +297,11 @@ with tabs[1]:
     with col_b:
         # Lorenz-style cumulative concentration curve
         fig = go.Figure()
-        for c, col in [('Serbia', SRB_COLOR), ('Poland', POL_COLOR)]:
+        for c in COUNTRIES:
+            col = COUNTRY_COLOR[c]
             recs = soe_df[soe_df['country']==c].dropna(subset=['revenue_usd']).sort_values('revenue_usd', ascending=False)
             total = recs['revenue_usd'].sum()
-            if total == 0: continue
+            if total == 0 or len(recs) == 0: continue
             cum = (recs['revenue_usd'].cumsum() / total * 100).tolist()
             xs = [0] + [(i+1)/len(recs)*100 for i in range(len(recs))]
             ys = [0] + cum
@@ -408,10 +412,10 @@ with tabs[2]:
         f"({top3_names}). Transition policy here is firm-specific, not portfolio-wide.")
     emi_soes_sorted = emi_soes.sort_values('scope1_tonnes', ascending=False)
     rows = []
-    for c in ['Serbia','Poland']:
+    for c in COUNTRIES:
         ccountry = emi_soes_sorted[emi_soes_sorted['country']==c]
         total = ccountry['scope1_tonnes'].sum()
-        if total == 0: continue
+        if total == 0 or len(ccountry) == 0: continue
         for n in [1,3]:
             share = ccountry.head(n)['scope1_tonnes'].sum()/total*100
             rows.append({'Country': c, 'Top N': f'Top {n}',
@@ -777,11 +781,18 @@ with tabs[6]:
     st.markdown("### About this dashboard")
 
     st.markdown("""
-A proof-of-concept **fiscal-risk lens** over state-owned enterprises in Serbia and Poland.
-The aim is to move beyond company-by-company description and point at the slices of the
-portfolio where public resources are most exposed (under-performing big SOEs, concentrated
-emissions, deteriorating trends). It is a first-pass instrument for PEFA PI-12-style fiscal-risk
-monitoring, not a published product.
+A proof-of-concept **fiscal-risk lens** over state-owned enterprises in **Serbia, Poland,
+Romania and Montenegro**. The aim is to move beyond company-by-company description and point at
+the slices of the portfolio where public resources are most exposed (under-performing big SOEs,
+concentrated emissions, deteriorating trends). It is a first-pass instrument for PEFA PI-12-style
+fiscal-risk monitoring, not a published product.
+
+Coverage is deepest for Serbia and Poland. Romania (7 SOEs — Nuclearelectrica, Romgaz,
+Transelectrica, Transgaz, Electrica, CFR, CFR Marfa) and Montenegro (15 SOEs incl. EPCG, CEDIS,
+CGES, Aerodromi, Plantaže, ToMontenegro, Luka Bar) are present but thinner: most Montenegrin
+rows come from iSOEF 2023 and carry revenue + total assets but no net profit, so ROA, the
+quadrant classification and the risk score cannot always be computed for them. See *Known gaps*
+and *Options to close the gaps* at the bottom of this tab.
 """)
 
     st.markdown("#### Why this view")
@@ -898,8 +909,15 @@ SOEs and tend to misrepresent portfolio-level exposure.
 
     st.markdown("#### Known gaps")
     st.markdown("""
-- Emissions matching limited to 8 SOEs where a Scope 1 record existed in the source (PGE, Enea,
-  LOT, JSW, Tauron, EPS, Air Serbia, NIS). The rest show as *Not covered*.
+- **Emissions coverage** limited to Serbia + Poland at the moment (8 matched SOEs: PGE, Enea,
+  LOT, JSW, Tauron, EPS, Air Serbia, NIS). Romanian and Montenegrin SOEs appear as *Not covered*
+  in the transition tab. EU ETS and Climate TRACE are the obvious next sources to plug.
+- **Romania** — 7 SOEs in the panel, but coverage is uneven: revenue is missing for CFR / CFR Marfa
+  (balance-sheet-only rows), total assets are missing for Romgaz, and Electrica / Transelectrica /
+  Transgaz only have partial year coverage. Investor-relations pages (BVB-listed) are the fix.
+- **Montenegro** — 15 SOEs in the panel, but most 2023 rows come from iSOEF and carry revenue +
+  total assets only (no net profit), so ROA / quadrant / risk score cannot be computed. EPCG is
+  the only Montenegrin SOE with full data.
 - TAURON group Scope 1 is under-represented (only the small *TAURON Wydobycie* subsidiary appears
   with a non-zero figure in the source).
 - Employee counts are incomplete for several Polish SOEs; revenue-per-employee is missing for
