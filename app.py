@@ -29,24 +29,30 @@ if not st.session_state.auth:
 # ================ LOAD DATA ================
 BASE = os.path.dirname(os.path.abspath(__file__))
 
+# mtime-keyed loaders so Streamlit Cloud's @st.cache_data rebuilds when the
+# JSON files are updated on redeploy (caught a stale 2-country cache on 2026-04-16).
+def _mtime(name):
+    p = os.path.join(BASE, name)
+    return os.path.getmtime(p) if os.path.exists(p) else 0
+
 @st.cache_data
-def load_financial():
+def load_financial(_mt):
     with open(os.path.join(BASE, 'financial.json'), 'r', encoding='utf-8') as f:
         return pd.DataFrame(json.load(f))
 
 @st.cache_data
-def load_emissions():
+def load_emissions(_mt):
     with open(os.path.join(BASE, 'emissions.json'), 'r', encoding='utf-8') as f:
         return json.load(f)
 
 @st.cache_data
-def load_analytics():
+def load_analytics(_mt):
     with open(os.path.join(BASE, 'analytics.json'), 'r', encoding='utf-8') as f:
         return json.load(f)
 
-df = load_financial()
-em = load_emissions()
-an = load_analytics()
+df = load_financial(_mtime('financial.json'))
+em = load_emissions(_mtime('emissions.json'))
+an = load_analytics(_mtime('analytics.json'))
 em_df = pd.DataFrame(em['companies'])
 soe_df = pd.DataFrame(an['soes'])
 
@@ -112,7 +118,11 @@ with tabs[0]:
 
     # ---- KPI rows per country (stacked full-width so labels don't truncate)
     def kpi_card(c):
-        a = countries[c]
+        a = countries.get(c)
+        if not a:
+            st.markdown(f"#### {c}")
+            st.info(f"Aggregate data for {c} is still loading. Refresh the page in a few seconds.")
+            return
         st.markdown(f"#### {c}")
         k1,k2,k3,k4 = st.columns(4)
         k1.metric("SOEs", a['n_soes'])
@@ -201,7 +211,8 @@ with tabs[0]:
 
     msg = []
     for c in COUNTRIES:
-        lst = countries[c]['fiscal_risk_companies']
+        agg = countries.get(c, {})
+        lst = agg.get('fiscal_risk_companies') or []
         if lst:
             msg.append(f"**{c} — fiscal-risk SOEs**: " + ", ".join(lst))
     if msg:
@@ -216,7 +227,8 @@ with tabs[1]:
 
     rows = []
     for c in COUNTRIES:
-        a = countries[c]
+        a = countries.get(c)
+        if not a: continue
         rows.append({
             'Country': c,
             'N SOEs': a['n_soes'],
