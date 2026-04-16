@@ -540,14 +540,14 @@ with tabs[4]:
         years = ['Latest'] + sorted(df['year'].dropna().unique().astype(int).tolist(), reverse=True)
         year_sel = st.selectbox("Year", years, key='dd_year')
     with c2:
-        country_sel = st.selectbox("Country", ["Both", "Serbia", "Poland"], key='dd_country')
+        country_sel = st.selectbox("Country", ["All"] + COUNTRIES, key='dd_country')
     with c3:
         sector_sel = st.selectbox("Sector", ["All"] + sorted(df['sector'].dropna().unique().tolist()), key='dd_sector')
     with c4:
         size_toggle = st.checkbox("Size bubbles by revenue", value=False, key='dd_size')
 
     def apply_filter(d):
-        if country_sel != "Both": d = d[d['country']==country_sel]
+        if country_sel != "All": d = d[d['country']==country_sel]
         if sector_sel != "All":  d = d[d['sector']==sector_sel]
         return d
     def latest_per_company_local(d, field=None):
