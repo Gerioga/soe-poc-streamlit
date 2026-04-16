@@ -399,18 +399,21 @@ with tabs[2]:
 
     # Intensity ranking
     st.markdown("#### Emissions-intensity ranking")
+    rank_log = st.toggle("Log scale (X)", value=True, key='rank_log',
+                         help="Values span two orders of magnitude (NIS ~29 → EPS ~4,500). "
+                              "Log spreads the low-intensity SOEs apart.")
     rank = emi_soes.dropna(subset=['emissions_intensity']).sort_values('emissions_intensity', ascending=True)
     fig = px.bar(rank, x='emissions_intensity', y='company', color='country', orientation='h',
                  color_discrete_map=COUNTRY_COLOR,
                  text=rank['emissions_intensity'].round(0).astype(int).astype(str),
-                 labels={'emissions_intensity':'tCO₂ per USD million revenue','company':''})
+                 log_x=rank_log,
+                 labels={'emissions_intensity':'tCO₂ per USD million revenue' + (' (log)' if rank_log else ''),
+                         'company':''})
     fig.update_traces(textposition='outside')
     fig.update_layout(height=max(300, 40*len(rank)), margin=dict(l=10,r=60,t=10,b=20))
     st.plotly_chart(fig, use_container_width=True)
     definition(
         "Emissions intensity = Scope 1 tonnes ÷ revenue (USDmn). Lower is cleaner. "
-        "An aviation SOE at ~400 and a coal-heavy power SOE at ~3,000 are in different orders of magnitude — "
-        "this is what policy should treat as 'high-carbon' vs 'low-carbon'. "
         "(Investopedia: carbon intensity is emissions per unit of economic output.)")
 
     # Compute concentration stat for the strong callout
@@ -724,19 +727,22 @@ with tabs[4]:
                 "Points below ROE = 0 on the right of that line are the worst: levered and losing money.")
     with col_r:
         st.markdown("**Net profit vs Equity** (slope = ROE)")
+        np_log = st.toggle("Log X (equity)", value=False, key='np_eq_log',
+                           help="Equity varies from a few hundred mn to $20B+. Log compresses the large end.")
         dd = latest_rev.dropna(subset=['equity_usd','net_profit_usd'])
+        if np_log:
+            dd = dd[dd['equity_usd'] > 0]
         if len(dd):
             fig = px.scatter(dd, x='equity_usd', y='net_profit_usd', color='country',
                              color_discrete_map=COUNTRY_COLOR, hover_name='company', text='company',
-                             size=size_arg, size_max=size_max)
+                             size=size_arg, size_max=size_max, log_x=np_log)
             fig.update_traces(textposition='top center', textfont_size=8)
             fig.add_hline(y=0, line_dash='dot', line_color='#888')
             fig.update_layout(height=420)
             st.plotly_chart(fig, use_container_width=True)
             definition(
                 "X = Equity (USD mn); Y = Net Profit (USD mn). "
-                "The slope of a line from origin through a point = that SOE's ROE. "
-                "Points far below zero on the Y-axis are destroying state capital.")
+                "The slope of a line from origin through a point = that SOE's ROE.")
 
 # ============================================================
 # TAB 6 — DATA TABLE
