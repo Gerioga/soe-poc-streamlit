@@ -801,6 +801,21 @@ quadrant classification and the risk score cannot always be computed for them. S
 and *Options to close the gaps* at the bottom of this tab.
 """)
 
+    st.markdown("""
+<div style="background-color:#fde2e4; border-left:6px solid #d6336c; padding:16px 20px; border-radius:6px; margin:12px 0 20px 0;">
+<b>How this differs from the World Bank's Business of the State (BOS) database</b>
+<ul style="margin-top:8px; margin-bottom:0;">
+<li><b>Geographic coverage</b> — BOS spans ~90+ economies globally; This Dashboard is a deep-dive on 4 countries (Serbia, Poland, Romania, Montenegro), with wider ECA data (22 countries, 695 records) held in the backend but not surfaced.</li>
+<li><b>Firm definition</b> — BOS captures any firm with ≥10% direct or indirect state ownership ("businesses of the state"), including minority stakes and sovereign-wealth-fund holdings. This Dashboard focuses on majority-owned SOEs and core portfolio entities tracked by MoF / treasury.</li>
+<li><b>How BOS gathers data</b> — BOS is built on Orbis / Bureau van Dijk, a commercial firm-level database. State ownership is inferred by walking Orbis shareholder trees to identify direct and indirect public stakes, then cross-walked against national SOE lists and sovereign-wealth-fund portfolios. Coverage is broad but depends on Orbis filing and registry quality; SOEs that are missing from Orbis are missed.</li>
+<li><b>How This Dashboard gathers data</b> — built directly from primary official sources: MoF / Treasury annual SOE portfolio reports, audited company annual reports (PDFs), Supreme Audit Institution reports, World Bank iSOEF assessments, and national statistics. Extraction is manual or scripted (pdfplumber, local parsers) with page-level source tracking per record. No commercial intermediary — every figure traces back to a named government document.</li>
+<li><b>Unit of analysis & metrics</b> — BOS reports both aggregate footprint (sector share, employment, value-added, Herfindahl) <i>and</i> firm-performance distributions (share of SOEs that are loss-making, ROA / ROE distributions, productivity gaps vs private peers); the lens is benchmarking SOEs against private firms. This Dashboard reports the same underlying financials (profitability, leverage, arrears, subsidies) but at the level of named individual firms, for fiscal oversight rather than market-structure comparison.</li>
+<li><b>Risk scoring & firm identification</b> — BOS publishes distributional statistics (e.g. "X% of SOEs are loss-making in sector Y") but does not name or rank individual firms. This Dashboard assigns a 0–100 fiscal-risk score, a quadrant position, and trend flags to each named SOE, so users can drill down to the specific entities driving portfolio risk.</li>
+<li><b>Climate / transition dimension</b> — absent in BOS. This Dashboard integrates Scope 1 emissions data and classifies SOEs by decarbonisation transition category (liability / opportunity / low / not covered).</li>
+</ul>
+</div>
+""", unsafe_allow_html=True)
+
     st.markdown("#### Why this view")
     st.markdown("""
 PEFA Pillar III (asset and liability management) and in particular **PI-12 (fiscal risk reporting)**
