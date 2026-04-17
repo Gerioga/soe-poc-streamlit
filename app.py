@@ -959,7 +959,7 @@ Concrete ways to widen coverage and raise data quality, in rough order of effort
   for unlisted SOEs.
 - **Multilateral and supranational** — WB iSOEF country reports, IMF Article IV staff reports,
   OECD SOE Scoreboard / OECD PMR, EU Commission country reports and Fiscal Stability Reports.
-  Good for cross-country comparability and policy framing.
+  Good for cross-country comparability.
 - **Regulatory / sectoral bodies** — national energy regulators (URE Poland, AERS Serbia), Eurostat
   SBS for sector aggregates, EU ETS registry for verified Scope 1 CO₂.
 - **Commercial databases** — Orbis (Bureau van Dijk), S&P Capital IQ, Refinitiv; complete panel
