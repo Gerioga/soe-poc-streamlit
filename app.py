@@ -1,5 +1,5 @@
 """
-SOE Proof of Concept Dashboard — Serbia, Poland, Romania, Montenegro
+SOE Proof of Concept Dashboard — Serbia, Poland, Romania, Montenegro, Bulgaria
 Fiscal-risk oriented redesign.
 """
 import streamlit as st
@@ -8,7 +8,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import json, os
 
-st.set_page_config(page_title="SOE Fiscal Risk — 4-country POC", layout="wide", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="SOE Fiscal Risk — 5-country POC", layout="wide", initial_sidebar_state="collapsed")
 
 # ================ AUTH ================
 PASSWORD = "Arlington"
@@ -16,7 +16,7 @@ if 'auth' not in st.session_state:
     st.session_state.auth = False
 
 if not st.session_state.auth:
-    st.markdown("## SOE Fiscal Risk — Serbia, Poland, Romania, Montenegro")
+    st.markdown("## SOE Fiscal Risk — Serbia, Poland, Romania, Montenegro, Bulgaria")
     pw = st.text_input("Password", type="password")
     if st.button("Enter"):
         if pw == PASSWORD:
@@ -60,8 +60,9 @@ SRB_COLOR = '#c8102e'
 POL_COLOR = '#005288'
 ROU_COLOR = '#ffd200'
 MNE_COLOR = '#7b3294'
-COUNTRY_COLOR = {'Serbia': SRB_COLOR, 'Poland': POL_COLOR, 'Romania': ROU_COLOR, 'Montenegro': MNE_COLOR}
-COUNTRIES = ['Serbia', 'Poland', 'Romania', 'Montenegro']
+BGR_COLOR = '#00966e'
+COUNTRY_COLOR = {'Serbia': SRB_COLOR, 'Poland': POL_COLOR, 'Romania': ROU_COLOR, 'Montenegro': MNE_COLOR, 'Bulgaria': BGR_COLOR}
+COUNTRIES = ['Serbia', 'Poland', 'Romania', 'Montenegro', 'Bulgaria']
 QUAD_COLOR = {
     'Fiscal risk':          '#d62728',
     'Strategic asset':      '#2ca02c',
@@ -101,7 +102,7 @@ div[data-testid="stMetricValue"] {font-size:22px !important;}
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<p class="big-title">SOE Fiscal Risk Lens — Serbia · Poland · Romania · Montenegro</p>', unsafe_allow_html=True)
+st.markdown('<p class="big-title">SOE Fiscal Risk Lens — Serbia · Poland · Romania · Montenegro · Bulgaria</p>', unsafe_allow_html=True)
 st.markdown('<p class="subtitle">Where state-owned enterprises sit on the fiscal-risk and transition-risk map. Proof of concept.</p>', unsafe_allow_html=True)
 
 # ================ TABS ================
@@ -138,7 +139,7 @@ with tabs[0]:
                   help="Large SOEs (above median revenue) with negative ROA")
         emi_t = a.get('agg_emissions_t') or 0
         k8.metric("Scope 1 emissions", f"{emi_t/1e6:.1f} MtCO₂e" if emi_t else "—",
-                  help="Scope 1 matched only for Serbia & Poland in this POC")
+                  help="Scope 1 matched only for Serbia & Poland in this POC (Romania, Montenegro and Bulgaria not yet covered)")
 
     for c in COUNTRIES:
         kpi_card(c)
@@ -788,17 +789,20 @@ with tabs[6]:
 
     st.markdown("""
 A proof-of-concept **fiscal-risk lens** over state-owned enterprises in **Serbia, Poland,
-Romania and Montenegro**. The aim is to move beyond company-by-company description and point at
-the slices of the portfolio where public resources are most exposed (under-performing big SOEs,
-concentrated emissions, deteriorating trends). It is a first-pass instrument for PEFA PI-12-style
-fiscal-risk monitoring, not a published product.
+Romania, Montenegro and Bulgaria**. The aim is to move beyond company-by-company description and
+point at the slices of the portfolio where public resources are most exposed (under-performing big
+SOEs, concentrated emissions, deteriorating trends). It is a first-pass instrument for PEFA
+PI-12-style fiscal-risk monitoring, not a published product.
 
 Coverage is deepest for Serbia and Poland. Romania (7 SOEs — Nuclearelectrica, Romgaz,
 Transelectrica, Transgaz, Electrica, CFR, CFR Marfa) and Montenegro (15 SOEs incl. EPCG, CEDIS,
 CGES, Aerodromi, Plantaže, ToMontenegro, Luka Bar) are present but thinner: most Montenegrin
 rows come from iSOEF 2023 and carry revenue + total assets but no net profit, so ROA, the
-quadrant classification and the risk score cannot always be computed for them. See *Known gaps*
-and *Options to close the gaps* at the bottom of this tab.
+quadrant classification and the risk score cannot always be computed for them. Bulgaria covers
+six energy SOEs (BEH holding, NEK, Kozloduy NPP, ESO grid, Bulgargas, Maritsa East-2 thermal)
+across 2018–2023, extracted directly from audited IFRS PDFs published on the BEH portal; rail
+operator NRIC was attempted but its scanned Bulgarian-language statements proved unreliable to
+parse and were dropped. See *Known gaps* and *Options to close the gaps* at the bottom of this tab.
 """)
 
     st.markdown("""
@@ -907,8 +911,10 @@ SOEs and tend to misrepresent portfolio-level exposure.
     st.markdown("""
 - **Financial data** — `SOE_Master_Database_Global.xlsx`. Consolidated group-level figures from
   audited annual reports, Q4/annual financial supplements, and regulator filings. Source PDF and
-  page are tracked for every record. Currencies: PLN (Poland), RSD (Serbia); values stored in
-  local-currency millions and cross-normalised to USD millions using period-average FX.
+  page are tracked for every record. Currencies: PLN (Poland), RSD (Serbia), RON (Romania),
+  EUR (Montenegro), BGN (Bulgaria); values stored in local-currency millions (or thousands, where
+  flagged) and cross-normalised to USD millions using period-average FX. BGN/USD is derived from
+  the EUR/USD rate using Bulgaria's 1.95583 BGN/EUR currency-board peg.
 - **Scope 1 emissions** — `soe specific.xlsx` sheet *RSPOL*. Facility-level Scope 1 CO₂-equivalent
   emissions aggregated to parent SOE (subsidiaries not re-added on top of the group parent, which
   already reports consolidated Scope 1).
@@ -931,14 +937,21 @@ SOEs and tend to misrepresent portfolio-level exposure.
     st.markdown("#### Known gaps")
     st.markdown("""
 - **Emissions coverage** limited to Serbia + Poland at the moment (8 matched SOEs: PGE, Enea,
-  LOT, JSW, Tauron, EPS, Air Serbia, NIS). Romanian and Montenegrin SOEs appear as *Not covered*
-  in the transition tab. EU ETS and Climate TRACE are the obvious next sources to plug.
+  LOT, JSW, Tauron, EPS, Air Serbia, NIS). Romanian, Montenegrin and Bulgarian SOEs appear as
+  *Not covered* in the transition tab. EU ETS (which covers Bulgaria's BEH thermal generators
+  directly) and Climate TRACE are the obvious next sources to plug.
 - **Romania** — 7 SOEs in the panel, but coverage is uneven: revenue is missing for CFR / CFR Marfa
   (balance-sheet-only rows), total assets are missing for Romgaz, and Electrica / Transelectrica /
   Transgaz only have partial year coverage. Investor-relations pages (BVB-listed) are the fix.
 - **Montenegro** — 15 SOEs in the panel, but most 2023 rows come from iSOEF and carry revenue +
   total assets only (no net profit), so ROA / quadrant / risk score cannot be computed. EPCG is
   the only Montenegrin SOE with full data.
+- **Bulgaria** — 6 energy SOEs covered (2018–2023) extracted from audited IFRS reports on the BEH
+  portal. NEK has revenue gaps for 2019/2023 and total-asset gaps for 2022/2023; Bulgargas equity
+  is missing for 2021–23; Bulgargas 2023 revenue is reported as a small negative number in source
+  (likely a presentation / parsing artifact). NRIC (rail) was dropped — Cyrillic image scans were
+  not reliably OCR-able. The ~140 hospital / road / minor-SOE rows present in the legacy ECA DB
+  carry only Net Profit (no revenue / assets) so they are filtered out by the build.
 - TAURON group Scope 1 is under-represented (only the small *TAURON Wydobycie* subsidiary appears
   with a non-zero figure in the source).
 - Employee counts are incomplete for several Polish SOEs; revenue-per-employee is missing for
