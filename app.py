@@ -125,18 +125,22 @@ with tabs[0]:
             st.info(f"Aggregate data for {c} is still loading. Refresh the page in a few seconds.")
             return
         st.markdown(f"#### {c}")
+        gdp_year = a.get('gdp_year')
+        gdp_tag = f" ({gdp_year})" if gdp_year else ""
         k1,k2,k3,k4 = st.columns(4)
         k1.metric("SOEs", a['n_soes'])
         k2.metric("Combined revenue", f"${a['agg_revenue_usd']/1000:,.1f}B")
-        k3.metric("Portfolio ROA", f"{a['agg_roa']:.2f}%" if a['agg_roa'] is not None else "—",
-                  help="Asset-weighted: Σ(Net profit) ÷ Σ(Total assets)")
+        k3.metric(f"Combined revenue / GDP{gdp_tag}",
+                  f"{a['agg_revenue_pct_gdp']:.1f}%" if a.get('agg_revenue_pct_gdp') is not None else "—",
+                  help="Σ(Revenue) of covered SOEs ÷ national GDP, latest year available in the sample. Rough proxy for SOE economic weight.")
         k4.metric("Top-3 concentration", f"{a['top3_revenue_share']:.0f}%" if a['top3_revenue_share'] else "—",
                   help="Share of SOE revenue captured by the three largest")
         k5,k6,k7,k8 = st.columns(4)
         k5.metric("Combined assets", f"${a['agg_assets_usd']/1000:,.1f}B")
-        k6.metric("Combined debt", f"${a['agg_debt_usd']/1000:,.1f}B" if a['agg_debt_usd'] else "—")
-        k7.metric("Fiscal-risk SOEs", a['n_fiscal_risk'],
-                  help="Large SOEs (above median revenue) with negative ROA")
+        k6.metric(f"Combined assets / GDP{gdp_tag}",
+                  f"{a['agg_assets_pct_gdp']:.1f}%" if a.get('agg_assets_pct_gdp') is not None else "—",
+                  help="Σ(Total assets) of covered SOEs ÷ national GDP, latest year available. Proxy for on-balance-sheet public exposure.")
+        k7.metric("Combined debt", f"${a['agg_debt_usd']/1000:,.1f}B" if a['agg_debt_usd'] else "—")
         emi_t = a.get('agg_emissions_t') or 0
         k8.metric("Scope 1 emissions", f"{emi_t/1e6:.1f} MtCO₂e" if emi_t else "—",
                   help="Scope 1 matched only for Serbia & Poland in this POC (Romania, Montenegro and Bulgaria not yet covered)")
@@ -234,22 +238,23 @@ with tabs[1]:
             'Country': c,
             'N SOEs': a['n_soes'],
             'Combined Revenue (USDbn)': round(a['agg_revenue_usd']/1000, 2),
+            'Combined Revenue / GDP (%)': a.get('agg_revenue_pct_gdp'),
             'Combined Assets (USDbn)':  round(a['agg_assets_usd']/1000, 2) if a['agg_assets_usd'] else None,
+            'Combined Assets / GDP (%)': a.get('agg_assets_pct_gdp'),
             'Combined Debt (USDbn)':    round(a['agg_debt_usd']/1000, 2) if a['agg_debt_usd'] else None,
-            'Portfolio ROA (%)': a['agg_roa'],
             'Portfolio Debt/Equity (×)': a['agg_leverage'],
             'Carbon intensity (tCO₂/USDmn rev)': a['agg_emissions_intensity'],
             'Top-3 revenue share (%)': a['top3_revenue_share'],
             'Scope 1 (Mt)': round(a['agg_emissions_t']/1e6, 2) if a.get('agg_emissions_t') else None,
-            'Fiscal-risk SOEs (count)': a['n_fiscal_risk'],
         })
     bench = pd.DataFrame(rows).set_index('Country').T
     st.dataframe(bench, use_container_width=True)
     definition(
-        "Portfolio ROA = Σ(Net Profit) ÷ Σ(Total Assets) — asset-weighted, not averaged, so "
-        "big SOEs pull the number. Debt/Equity (Investopedia) = Σ(Debt) ÷ Σ(Equity); values > 2× "
-        "signal high leverage. Carbon intensity = Scope 1 ÷ Revenue; lower = cleaner production. "
-        "Top-3 share is the % of portfolio revenue captured by the three largest SOEs.")
+        "Revenue / GDP and Assets / GDP use the latest year available in the sample per country. "
+        "Debt/Equity (Investopedia) = Σ(Debt) ÷ Σ(Equity); values > 2× signal high leverage. "
+        "Carbon intensity = Scope 1 ÷ Revenue; lower = cleaner production. "
+        "Top-3 share is the % of portfolio revenue captured by the three largest SOEs. "
+        "Consolidated/Standalone pairs (e.g. EPS) are deduped — consolidated kept — so assets are not double-counted.")
 
     st.markdown("---")
 

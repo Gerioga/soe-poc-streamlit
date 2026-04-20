@@ -602,9 +602,9 @@
       "assets_pct_gdp": 1.567,
       "scope1_tonnes": null,
       "emissions_intensity": null,
-      "risk_score": 61.7,
+      "risk_score": 62.7,
       "risk_components": {
-        "size": 94.7,
+        "size": 96.5,
         "performance": 23.3,
         "leverage": null,
         "emissions": null
@@ -688,9 +688,9 @@
       "assets_pct_gdp": 7.639,
       "scope1_tonnes": null,
       "emissions_intensity": null,
-      "risk_score": 69.0,
+      "risk_score": 70.0,
       "risk_components": {
-        "size": 98.2,
+        "size": 100.0,
         "performance": 34.9,
         "leverage": null,
         "emissions": null
@@ -731,9 +731,9 @@
       "assets_pct_gdp": null,
       "scope1_tonnes": null,
       "emissions_intensity": null,
-      "risk_score": 91.2,
+      "risk_score": 93.0,
       "risk_components": {
-        "size": 91.2,
+        "size": 93.0,
         "performance": null,
         "leverage": null,
         "emissions": null
@@ -771,9 +771,9 @@
       "assets_pct_gdp": null,
       "scope1_tonnes": null,
       "emissions_intensity": null,
-      "risk_score": 80.7,
+      "risk_score": 82.5,
       "risk_components": {
-        "size": 80.7,
+        "size": 82.5,
         "performance": null,
         "leverage": null,
         "emissions": null
@@ -810,9 +810,9 @@
       "assets_pct_gdp": 3.024,
       "scope1_tonnes": 46854800.9,
       "emissions_intensity": 2899.2,
-      "risk_score": 86.2,
+      "risk_score": 86.9,
       "risk_components": {
-        "size": 96.5,
+        "size": 98.2,
         "performance": 65.1,
         "leverage": null,
         "emissions": 100
@@ -852,9 +852,9 @@
       "assets_pct_gdp": 1.137,
       "scope1_tonnes": 21500843.0,
       "emissions_intensity": 2746.5,
-      "risk_score": 73.2,
+      "risk_score": 73.9,
       "risk_components": {
-        "size": 93.0,
+        "size": 94.7,
         "performance": 32.1,
         "leverage": null,
         "emissions": 100
@@ -972,9 +972,9 @@
       "assets_pct_gdp": 0.98,
       "scope1_tonnes": null,
       "emissions_intensity": null,
-      "risk_score": 71.6,
+      "risk_score": 72.6,
       "risk_components": {
-        "size": 86.0,
+        "size": 87.7,
         "performance": 54.9,
         "leverage": null,
         "emissions": null
@@ -1318,9 +1318,9 @@
       "assets_pct_gdp": 12.307,
       "scope1_tonnes": 18691543.1,
       "emissions_intensity": 4497.3,
-      "risk_score": 72.4,
+      "risk_score": 73.1,
       "risk_components": {
-        "size": 84.2,
+        "size": 86.0,
         "performance": 40.1,
         "leverage": null,
         "emissions": 100
@@ -1361,9 +1361,9 @@
       "assets_pct_gdp": 12.293,
       "scope1_tonnes": 18691543.1,
       "emissions_intensity": 4508.2,
-      "risk_score": 71.1,
+      "risk_score": 71.8,
       "risk_components": {
-        "size": 82.5,
+        "size": 84.2,
         "performance": 38.6,
         "leverage": null,
         "emissions": 100
@@ -1387,36 +1387,36 @@
     {
       "company": "NIS",
       "country": "Serbia",
-      "sector": "Other",
-      "latest_year": 2025,
-      "revenue_usd": 86745.95652173912,
-      "net_profit_usd": 6209.590217391305,
+      "sector": "Energy",
+      "latest_year": 2024,
+      "revenue_usd": 3831.924882629108,
+      "net_profit_usd": 94.83568075117371,
       "total_assets_usd": null,
       "equity_usd": null,
       "total_debt_usd": null,
       "roa": null,
       "roe": null,
-      "net_margin": 7.16,
-      "ebitda_margin": null,
+      "net_margin": 2.47,
+      "ebitda_margin": 10.88,
       "debt_to_equity": null,
-      "revenue_pct_gdp": null,
+      "revenue_pct_gdp": 4.679,
       "assets_pct_gdp": null,
       "scope1_tonnes": 36498.7,
-      "emissions_intensity": 0.4,
-      "risk_score": 63.6,
+      "emissions_intensity": 9.5,
+      "risk_score": 51.5,
       "risk_components": {
-        "size": 100.0,
+        "size": 80.7,
         "performance": null,
         "leverage": null,
-        "emissions": 0.0
+        "emissions": 0.5
       },
       "quadrant": "Insufficient data",
       "transition_category": "Low transition exposure",
       "roa_slope": 4.36,
       "roa_direction": "improving",
-      "revenue_slope_usd": 41482.6,
-      "revenue_direction": "improving",
-      "margin_slope": -1.79,
+      "revenue_slope_usd": -358.1,
+      "revenue_direction": "deteriorating",
+      "margin_slope": -7.76,
       "margin_direction": "deteriorating",
       "years_covered": [
         2018,
@@ -1425,8 +1425,7 @@
         2021,
         2022,
         2023,
-        2024,
-        2025
+        2024
       ]
     },
     {
@@ -1734,9 +1733,9 @@
       "assets_pct_gdp": 14.967,
       "scope1_tonnes": null,
       "emissions_intensity": null,
-      "risk_score": 61.0,
+      "risk_score": 62.0,
       "risk_components": {
-        "size": 87.7,
+        "size": 89.5,
         "performance": 29.9,
         "leverage": null,
         "emissions": null
@@ -2393,9 +2392,9 @@
       "assets_pct_gdp": 14.967,
       "scope1_tonnes": null,
       "emissions_intensity": null,
-      "risk_score": 61.0,
+      "risk_score": 62.0,
       "risk_components": {
-        "size": 87.7,
+        "size": 89.5,
         "performance": 29.9,
         "leverage": null,
         "emissions": null
@@ -2583,17 +2582,21 @@
   "country_aggregates": {
     "Serbia": {
       "country": "Serbia",
-      "n_soes": 11,
-      "agg_revenue_usd": 102718.1,
-      "agg_assets_usd": 32355.2,
-      "agg_net_profit_usd": 7295.7,
-      "agg_equity_usd": 16706.9,
+      "n_soes": 10,
+      "gdp_year": 2024,
+      "gdp_usd_mn": 81900.0,
+      "agg_revenue_pct_gdp": 19.1,
+      "agg_assets_pct_gdp": 27.2,
+      "agg_revenue_usd": 15658.0,
+      "agg_assets_usd": 22286.9,
+      "agg_net_profit_usd": 951.6,
+      "agg_equity_usd": 10646.8,
       "agg_debt_usd": 0,
-      "agg_emissions_t": 37769033.0,
-      "agg_roa": 22.55,
+      "agg_emissions_t": 19077490.0,
+      "agg_roa": 4.27,
       "agg_leverage": 0.0,
-      "agg_emissions_intensity": 367.7,
-      "top3_revenue_share": 92.5,
+      "agg_emissions_intensity": 1218.4,
+      "top3_revenue_share": 64.5,
       "n_fiscal_risk": 0,
       "fiscal_risk_companies": [],
       "transition_liabilities": [
@@ -2603,6 +2606,10 @@
     "Poland": {
       "country": "Poland",
       "n_soes": 20,
+      "gdp_year": 2024,
+      "gdp_usd_mn": 862000,
+      "agg_revenue_pct_gdp": 16.5,
+      "agg_assets_pct_gdp": 31.5,
       "agg_revenue_usd": 142045.6,
       "agg_assets_usd": 271728.0,
       "agg_net_profit_usd": 1019.8,
@@ -2629,6 +2636,10 @@
     "Romania": {
       "country": "Romania",
       "n_soes": 7,
+      "gdp_year": 2024,
+      "gdp_usd_mn": 367000,
+      "agg_revenue_pct_gdp": 2.2,
+      "agg_assets_pct_gdp": 4.1,
       "agg_revenue_usd": 8119.1,
       "agg_assets_usd": 14996.7,
       "agg_net_profit_usd": 1144.5,
@@ -2646,6 +2657,10 @@
     "Montenegro": {
       "country": "Montenegro",
       "n_soes": 15,
+      "gdp_year": 2024,
+      "gdp_usd_mn": 7850.0,
+      "agg_revenue_pct_gdp": 25.4,
+      "agg_assets_pct_gdp": 61.6,
       "agg_revenue_usd": 1990.2,
       "agg_assets_usd": 4835.1,
       "agg_net_profit_usd": 87.7,
@@ -2663,6 +2678,10 @@
     "Bulgaria": {
       "country": "Bulgaria",
       "n_soes": 11,
+      "gdp_year": 2023,
+      "gdp_usd_mn": 102400.0,
+      "agg_revenue_pct_gdp": 17.2,
+      "agg_assets_pct_gdp": 43.2,
       "agg_revenue_usd": 17586.6,
       "agg_assets_usd": 44256.0,
       "agg_net_profit_usd": 1772.9,
@@ -2684,7 +2703,7 @@
     {
       "company": "PZU S.A.",
       "country": "Poland",
-      "risk_score": 91.2,
+      "risk_score": 93.0,
       "quadrant": "Insufficient data",
       "roa": null,
       "roa_direction": "insufficient data",
@@ -2693,7 +2712,7 @@
     {
       "company": "PGE Polska Grupa Energetyczna S.A.",
       "country": "Poland",
-      "risk_score": 86.2,
+      "risk_score": 86.9,
       "quadrant": "Fiscal risk",
       "roa": -3.03,
       "roa_direction": "deteriorating",
@@ -2702,7 +2721,7 @@
     {
       "company": "TAURON",
       "country": "Poland",
-      "risk_score": 80.7,
+      "risk_score": 82.5,
       "quadrant": "Insufficient data",
       "roa": null,
       "roa_direction": "insufficient data",
@@ -2727,6 +2746,15 @@
       "revenue_usd": 2807.017543859649
     },
     {
+      "company": "Enea S.A.",
+      "country": "Poland",
+      "risk_score": 73.9,
+      "quadrant": "Strategic asset",
+      "roa": 3.57,
+      "roa_direction": "insufficient data",
+      "revenue_usd": 7828.320802005012
+    },
+    {
       "company": "PKP Cargo S.A.",
       "country": "Poland",
       "risk_score": 73.6,
@@ -2736,22 +2764,22 @@
       "revenue_usd": 1117.7944862155389
     },
     {
-      "company": "Enea S.A.",
-      "country": "Poland",
-      "risk_score": 73.2,
-      "quadrant": "Strategic asset",
-      "roa": 3.57,
-      "roa_direction": "insufficient data",
-      "revenue_usd": 7828.320802005012
-    },
-    {
       "company": "EPS (Consolidated)",
       "country": "Serbia",
-      "risk_score": 72.4,
+      "risk_score": 73.1,
       "quadrant": "Strategic asset",
       "roa": 1.97,
       "roa_direction": "improving",
       "revenue_usd": 4156.154460093897
+    },
+    {
+      "company": "PKP PLK S.A.",
+      "country": "Poland",
+      "risk_score": 72.6,
+      "quadrant": "Fiscal risk",
+      "roa": -0.99,
+      "roa_direction": "insufficient data",
+      "revenue_usd": 4404.511278195489
     },
     {
       "company": "Polska Grupa Górnicza S.A.",
@@ -2761,15 +2789,6 @@
       "roa": null,
       "roa_direction": "insufficient data",
       "revenue_usd": 2431.0776942355888
-    },
-    {
-      "company": "PKP PLK S.A.",
-      "country": "Poland",
-      "risk_score": 71.6,
-      "quadrant": "Fiscal risk",
-      "roa": -0.99,
-      "roa_direction": "insufficient data",
-      "revenue_usd": 4404.511278195489
     }
   ]
 }
